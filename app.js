@@ -18,6 +18,7 @@ app.set("view engine", "ejs");
 app.use(express.static('public'));
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+app.use(methodOverride('_method'));
 
 //routes 
 app.get('/', async (req, res) => {
@@ -35,7 +36,15 @@ app.get('/post/:id',async (req,res)=>{
     const post = await Post.findById(req.params.id);
 
     res.render('post',{post});
-})
+});
+
+app.put('/post/:id',async () =>{
+    const post = await Post.findOne({_id:req.params.id});
+    post.title=req.body.title;
+    post.detail=req.body.detail;
+    post.save();
+    res.redirect(`/post/${req.params.id}`)
+});
 
 // app.get('/post', (req, res) => {
 //     res.render('post');
@@ -49,6 +58,16 @@ app.post('/post',async (req,res)=>{
     await Post.create(req.body);
     res.redirect('/');
 })
+
+app.get('/post/edit/:id',async (req,res)=>{
+    const post = await Post.findOne({_id:req.params.id});
+    res.render('edit',{
+        post
+    });
+});
+
+
+
 
 app.listen(3000, () => {
     console.log("Sunucu başladı");
